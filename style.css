@@ -24,7 +24,7 @@ body {
   height: 100%;
   background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='200'><defs><style>.small{font:16px sans-serif;fill:rgba(204,204,204,0.1);} .big{font:32px sans-serif;fill:rgba(204,204,204,0.1);}</style></defs><rect width='100%' height='100%' fill='none'/><text x='10' y='50' class='small'>狂教中国</text><text x='150' y='100' class='big'>CCC</text><text x='10' y='150' class='small'>CockyClubCHINA</text></svg>") repeat;
   background-size: 400px 200px;
-  animation: flowPattern 60s linear infinite;
+  animation: flowPattern 60s linear infinite, chromatic-aberration 10s infinite linear;
   pointer-events: none;
   z-index: -1;
 }
@@ -32,6 +32,25 @@ body {
 @keyframes flowPattern {
   0% { background-position: 0 0; }
   100% { background-position: -400px 0; }
+}
+
+@keyframes chromatic-aberration {
+  0%, 100% {
+    filter: blur(0);
+    background-position: 0 0;
+  }
+  25% {
+    filter: blur(0.4px);
+    background-position: -0.5px 0.5px;
+  }
+  50% {
+    filter: blur(0.6px);
+    background-position: 0.5px -0.5px;
+  }
+  75% {
+    filter: blur(0.2px);
+    background-position: 0.3px 0.7px;
+  }
 }
 
 /* Updated CCC Icon Styles for Homepage */
@@ -43,10 +62,11 @@ body {
   width: 50vw;
   height: 100vh;
   background: url("CCC_Icon.png") no-repeat center/contain;
-  filter: brightness(1.5) drop-shadow(0 0 30px rgba(212,175,55,0.8));
+  filter: brightness(1.5) drop-shadow(0 0 30px rgba(212,175,55,0.8)) sepia(50%);
   z-index: 0;
   -webkit-mask-image: radial-gradient(circle at left, rgba(0,0,0,0.9), rgba(0,0,0,0.0) 70%);
           mask-image: radial-gradient(circle at left, rgba(0,0,0,0.9), rgba(0,0,0,0.0) 70%);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Navigation Styles with Gaussian Blur effect */
@@ -74,6 +94,7 @@ body {
   border-radius: 50px;
   backdrop-filter: blur(5px);
   border: 1px solid rgba(212, 175, 55, 0.2);
+  animation: chromatic-aberration 10s infinite linear;
 }
 
 .nav-links li {
@@ -98,11 +119,41 @@ body {
   position: relative;
   display: inline-flex;
   align-items: center;
-  overflow: hidden; 
+  overflow: hidden;
   border-radius: 4px;
   padding: 4px 8px;
   mask-image: linear-gradient(white, white);
   mask-mode: alpha;
+  border: 1px solid transparent;
+}
+
+.nav-mask-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  background: linear-gradient(45deg, 
+    rgba(212,175,55,0.8),
+    rgba(229,228,226,0.6), 
+    rgba(212,175,55,0.8)
+  );
+  mask: 
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  z-index: 1;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.nav-link:hover .nav-mask-container::before {
+  opacity: 1;
+  background: linear-gradient(45deg, 
+    rgba(229,228,226,0.8),
+    rgba(212,175,55,0.8),
+    rgba(229,228,226,0.8)
+  );
 }
 
 .nav-mask-container::after {
@@ -186,19 +237,24 @@ body {
   display: none;
   position: fixed;
   top: 1.5rem;
-  right: 1.5rem;
+  right: 1.2rem;
   width: 50px;
   height: 50px;
-  padding: 15px 12px;
+  padding: 0;
   background: rgba(0, 0, 0, 0.8);
   border-radius: 12px;
   backdrop-filter: blur(5px);
   border: 1px solid rgba(212, 175, 55, 0.4);
   z-index: 1100;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+  font-size: 1rem;
+  color: #d4af37;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+  /* 保持按钮正方形 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .hamburger::before {
@@ -221,18 +277,6 @@ body {
   opacity: 1;
 }
 
-.hamburger::after {
-  content: '菜单';
-  position: absolute;
-  bottom: 2px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 10px;
-  color: #d4af37;
-  opacity: 0.8;
-  text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
-}
-
 .hamburger:hover {
   background: rgba(0, 0, 0, 0.9);
   border-color: rgba(212, 175, 55, 0.8);
@@ -240,55 +284,9 @@ body {
   box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
 }
 
-.hamburger-line {
-  background: #d4af37;
-  height: 2px;
-  margin: 4px 0;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 4px;
-  box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
-  position: relative;
-}
-
-.hamburger-line::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.6), transparent);
-  filter: blur(2px);
-  animation: hamburgerGlow 2s ease-in-out infinite;
-}
-
-@keyframes hamburgerGlow {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
-}
-
 .hamburger.active {
   background: rgba(0, 0, 0, 0.95);
-  border-color: rgba(229, 228, 226, 0.6);
-  box-shadow: 0 0 20px rgba(229, 228, 226, 0.2);
-}
-
-.hamburger.active .hamburger-line {
-  background: #e5e4e2;
-  box-shadow: 0 0 12px rgba(229, 228, 226, 0.5);
-}
-
-.hamburger.active .hamburger-line:nth-child(2) {
-  opacity: 0;
-  transform: translateX(-10px);
-}
-
-.hamburger.active .hamburger-line:nth-child(1) {
-  transform: translateY(6px) rotate(45deg);
-}
-
-.hamburger.active .hamburger-line:nth-child(3) {
-  transform: translateY(-6px) rotate(-45deg);
+  border-color: rgba(212, 175, 55, 0.8);
 }
 
 /* Hero Section */
@@ -376,7 +374,7 @@ body {
   left: -100%;
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120'%3E%3Cpath fill='white' d='M0 59.5c0 0 216.5 60 600 60 383.5 0 600-60 600-60s-216.5 60-600 60S0 59.5 0 59.5z'/%3E%3C/svg%3E");
   background: linear-gradient(transparent, rgba(212, 175, 55, 0.15));
-  animation: wave 25s linear infinite;
+  animation: wave 25s linear infinite, chromatic-aberration 10s infinite linear;
   mask-size: 100% 100%;
   mask-repeat: repeat-x;
 }
@@ -525,7 +523,7 @@ footer {
   }
 
   .nav-links li {
-    padding: 0.5rem;
+    padding: 1.3rem 2rem;
   }
 
   .nav-link {
@@ -536,36 +534,55 @@ footer {
   .nav-links li .nav-mask-container {
     width: 100%;
     justify-content: center;
-    padding: 0.8rem 1.2rem;
-    background: rgba(212, 175, 55, 0.05);
-    border-radius: 8px;
-    border: 1px solid rgba(212, 175, 55, 0.1);
-    transition: all 0.3s ease;
+    padding: 1rem;
+    border: none;
   }
 
-  .nav-links li:hover .nav-mask-container {
-    background: rgba(212, 175, 55, 0.1);
-    border-color: rgba(212, 175, 55, 0.2);
+  .nav-mask-container::before {
+    background: linear-gradient(90deg,
+      rgba(212,175,55,0.6),
+      rgba(229,228,226,0.4),
+      rgba(212,175,55,0.6)
+    );
+  }
+
+  .hamburger {
+    display: block;
+  }
+
+  .nav-mask-container {
+    border: 2px solid rgba(212,175,55,0.8);
+    padding: 4px 8px;
   }
 
   .nav-links li:not(:last-child)::after {
     content: '';
     position: absolute;
-    left: 10%;
-    bottom: -0.75rem;
-    width: 80%;
-    height: 1px;
-    background: linear-gradient(90deg, 
-      transparent,
-      rgba(212, 175, 55, 0.2),
-      transparent
+    bottom: -0.75rem;  
+    left: 50%;
+    width: 60%;  
+    height: 2px;
+    transform: translate(-50%, 100%);
+    background: linear-gradient(
+      to right,
+      transparent 10%,
+      rgba(212,175,55,0.4) 45%,
+      rgba(212,175,55,0.4) 55%,
+      transparent 90%
     );
+    top: auto;
+    z-index: 1;
   }
+  
+  .nav-links li:not(:last-child)::before {
+    content: none;  
+  }
+}
 
+/* Ensure Hamburger button is hidden on larger screens */
+@media (min-width: 481px) {
   .hamburger {
-    display: flex;
-    top: 1.2rem;
-    right: 1.2rem;
+    display: none !important;
   }
 }
 
@@ -584,23 +601,38 @@ footer {
   transform: translateY(-2px);
 }
 
-/* --- New Styles for Hamburger Icon --- */
-.hamburger {
-  position: relative;
+.crt-filter {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  background: 
+    repeating-linear-gradient(
+      0deg, 
+      rgba(0,0,0,0.15) 0px, 
+      rgba(0,0,0,0.15) 1px, 
+      transparent 1px, 
+      transparent 2px
+    ),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+  animation: crt-flicker 0.15s infinite, crt-scanline 4s linear infinite;
+  opacity: 0.3;
 }
 
-.hamburger-icon {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 24px;
-  height: 24px;
-  transform: translate(-50%, -50%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: 2;
+@keyframes crt-flicker {
+  0% { opacity: 0.3; }
+  20% { opacity: 0.28; }
+  40% { opacity: 0.31; }
+  60% { opacity: 0.27; }
+  80% { opacity: 0.33; }
+  100% { opacity: 0.3; }
 }
 
-.hamburger.active .hamburger-icon {
-  opacity: 1;
+@keyframes crt-scanline {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 200%; }
 }
