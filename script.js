@@ -51,15 +51,28 @@ function setupMobileNavigation() {
     hamburger.classList.toggle('active');
     navContainer.classList.toggle('active');
     document.body.style.overflow = navContainer.classList.contains('active') ? 'hidden' : '';
+    if (hamburger.classList.contains('active')) {
+      hamburger.textContent = 'X';
+      // 如果按钮点击后超出右边界则向下偏移，否则向右偏移
+      const rect = hamburger.getBoundingClientRect();
+      if (rect.right + 10 > window.innerWidth) {
+        hamburger.style.transform = "translateY(10px)";
+      } else {
+        hamburger.style.transform = "translateX(10px)";
+      }
+    } else {
+      hamburger.textContent = '菜单';
+      hamburger.style.transform = "translate(0)";
+    }
   }
 
   // 点击汉堡按钮
   hamburger.addEventListener('click', toggleMenu);
 
-  // 点击导航链接时关闭菜单
+  // 点击导航链接时关闭菜单（移动端）
   navLinks.forEach(link => {
     link.addEventListener('click', () => {
-      if (window.innerWidth <= 480) {
+      if (window.innerWidth <= 480 && navContainer.classList.contains('active')) {
         toggleMenu();
       }
       const target = document.querySelector(link.getAttribute('href'));
@@ -96,7 +109,6 @@ function smoothScroll() {
         const headerOffset = 90;
         const elementPosition = target.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
         window.scrollTo({
           top: offsetPosition,
           behavior: 'smooth'
